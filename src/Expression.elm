@@ -2,7 +2,6 @@ module Expression exposing
   ( Expression(..)
   , Function(..)
   , runExpression
-  , showExpression
   )
 
 type Expression
@@ -39,30 +38,6 @@ runExpression expression =
     Apply Sin e -> sin <| runExpression e
     Apply Cos e -> cos <| runExpression e
     Apply Tan e -> tan <| runExpression e
-
-showExpression : Expression -> String
-showExpression expression =
-  let
-    showBinaryOp op e1 e2 = "(" ++ showExpression e1 ++ ") " ++ op ++ " (" ++ showExpression e2 ++ ")"
-  in case expression of
-    Number x -> String.fromFloat x
-    Negate e -> "-(" ++ showExpression e ++ ")"
-    Add e1 e2 -> showBinaryOp "+" e1 e2
-    Sub e1 e2 -> showBinaryOp "-" e1 e2
-    Mul e1 e2 -> showBinaryOp "*" e1 e2
-    Div e1 e2 -> showBinaryOp "/" e1 e2
-    Mod e1 e2 -> showBinaryOp "%" e1 e2
-    Apply f e -> functionName f ++ "(" ++ showExpression e ++ ")"
-
-functionName : Function -> String
-functionName f =
-  case f of
-    Sqrt -> "sqrt"
-    Exp -> "exp"
-    Log -> "log"
-    Sin -> "sin"
-    Cos -> "cos"
-    Tan -> "tan"
 
 fmod : Float -> Float -> Float
 fmod p q =

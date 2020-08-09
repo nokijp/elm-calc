@@ -12,9 +12,9 @@ type Msg
   | UpdateNewExpression String
   | ClearHistory
 
-type NewExpression = ExpressionEmpty | ExpressionErr String | ExpressionOk Expression
+type NewExpression = ExpressionEmpty | ExpressionErr String | ExpressionOk String Expression
 type alias Model =
-  { history : List (Expression, Float)
+  { history : List (String, Float)
   , newExpression : NewExpression
   }
 
@@ -37,7 +37,7 @@ update msg model =
   case msg of
     TryToPush -> 
       case model.newExpression of
-        ExpressionOk e -> { model | history = (e, runExpression e) :: model.history }
+        ExpressionOk s e -> { model | history = (s, runExpression e) :: model.history }
         _ -> model
     UpdateNewExpression input ->
       let
@@ -47,7 +47,7 @@ update msg model =
           else resultToNewExpression <| parseExpression input
         resultToNewExpression res =
           case res of
-             Ok e -> ExpressionOk e
+             Ok e -> ExpressionOk input e
              Err _ -> ExpressionErr "invalid expression"
       in { model | newExpression = newExpression }
     ClearHistory -> { model | history = [] }
@@ -59,16 +59,16 @@ view model =
       case model.newExpression of
          ExpressionEmpty -> ""
          ExpressionErr e -> e
-         ExpressionOk e -> "= " ++ String.fromFloat (runExpression e)
+         ExpressionOk _ e -> "= " ++ String.fromFloat (runExpression e)
   in div []
     [ form [ onSubmit TryToPush ]
-      [ input [ onInput UpdateNewExpression, placeholder "enter an expression, e.g. 1 + 1 * 3" ] []
+      [ input [ onInput UpdateNewExpression, placeholder "enter an expression, e.g. (1 + 2 * sin(5)) / 2" ] []
       ]
     , p [] [ text message ]
     , button [ onClick ClearHistory ] [ text "clear" ]
     , div [] [ historyView model.history ]
     ]
 
-historyView : List (Expression, Float) -> Html a
+historyView : List (String, Float) -> Html a
 historyView history =
-  ul [] <| List.map (\(e, res) -> li [] [text <| showExpression e ++ " = " ++ String.fromFloat res]) history
+  ul [] <| List.map (\(s, res) -> li [] [text <| s ++ " = " ++ String.fromFloat res]) history
