@@ -1,5 +1,7 @@
 # Elm Calc
 
+https://nokijp.github.io/elm-calc/
+
 An evaluator of mathematical expressions
 
 ```
