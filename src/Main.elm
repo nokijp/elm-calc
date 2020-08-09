@@ -21,7 +21,8 @@ main =
 init : Model
 init =
   { history = []
-  , input = InputEmpty
+  , input = ""
+  , result = CalcResultEmpty
   , variables = defaultVariables
   }
 
@@ -29,31 +30,34 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     TryToPush -> 
-      case model.input of
-        InputOk s r ->
+      case model.result of
+        CalcResultOk r ->
           let
-            newHistory = (s, r, newVariableName) :: model.history
+            newHistory = (model.input, r, newVariableName) :: model.history
             newVariables = Dict.insert newVariableName r model.variables
             newVariableName = "res" ++ String.fromInt (List.length model.history + 1)
           in
             { model
             | history = newHistory
+            , input = ""
+            , result = CalcResultEmpty
             , variables = newVariables
             }
         _ -> model
     UpdateInput input ->
       let
-        newInput =
-          if String.isEmpty input
-          then InputEmpty
+        newResult =
+          if String.isEmpty <| String.trim input
+          then CalcResultEmpty
           else resultToNewExpression <| parseExpression (Dict.keys model.variables) input
         resultToNewExpression res =
           case res of
-            Ok e -> InputOk input (runExpression model.variables e)
-            Err _ -> InputErr "invalid expression"
+            Ok e -> CalcResultOk <| runExpression model.variables e
+            Err _ -> CalcResultErr "invalid expression"
       in
         { model
-        | input = newInput
+        | input = input
+        , result = newResult
         }
     ClearHistory ->
       { model

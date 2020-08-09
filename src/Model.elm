@@ -1,6 +1,6 @@
 module Model exposing
   ( Msg(..)
-  , Input(..)
+  , CalcResult(..)
   , Model
   )
 
@@ -12,13 +12,14 @@ type Msg
   | UpdateInput String
   | ClearHistory
 
-type Input
-  = InputEmpty
-  | InputErr String
-  | InputOk String Float
+type CalcResult
+  = CalcResultEmpty
+  | CalcResultErr String
+  | CalcResultOk Float
 
 type alias Model =
   { history : List (String, Float, String)
-  , input : Input
+  , input : String
+  , result : CalcResult
   , variables : Dict String Float
   }

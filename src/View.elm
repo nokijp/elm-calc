@@ -3,7 +3,7 @@ module View exposing (bodyContent)
 import Css exposing (..)
 import Css.Reset as Reset
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, placeholder)
+import Html.Styled.Attributes exposing (css, placeholder, value)
 import Html.Styled.Events exposing (..)
 import Model exposing (..)
 
@@ -118,16 +118,22 @@ bodyContent model =
         ]
 
     message =
-      case model.input of
-         InputEmpty -> ""
-         InputErr e -> e
-         InputOk _ r -> "= " ++ String.fromFloat r
+      case model.result of
+         CalcResultEmpty -> ""
+         CalcResultErr e -> e
+         CalcResultOk r -> "= " ++ String.fromFloat r
   in
     [ Reset.meyerV2
     , formSection
         [ mainTitle
         , form [onSubmit TryToPush]
-          [ input [mainTextInputStyle, onInput UpdateInput, placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"] []
+          [ input
+              [ mainTextInputStyle
+              , onInput UpdateInput
+              , value model.input
+              , placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"
+              ]
+              []
           ]
         , p [messageStyle] [text message]
         ]
