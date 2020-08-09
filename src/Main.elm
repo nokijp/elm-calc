@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser exposing (..)
+import Dict exposing (Dict)
 import Expression exposing (..)
 import ExpressionParser exposing (..)
 import Html.Styled exposing (..)
@@ -34,10 +35,10 @@ update msg model =
         newExpression =
           if String.isEmpty input
           then ExpressionEmpty
-          else resultToNewExpression <| parseExpression input
+          else resultToNewExpression <| parseExpression (Dict.keys defaultVariables) input
         resultToNewExpression res =
           case res of
-             Ok e -> ExpressionOk input e (runExpression e)
+             Ok e -> ExpressionOk input e (runExpression defaultVariables e)
              Err _ -> ExpressionErr "invalid expression"
       in { model | newExpression = newExpression }
     ClearHistory -> { model | history = [] }
@@ -47,3 +48,10 @@ view model =
   { title = "Elm Calc"
   , body = List.map toUnstyled <| bodyContent model
   }
+
+defaultVariables : Dict String Float
+defaultVariables =
+  Dict.fromList
+    [ ("pi", pi)
+    , ("e", e)
+    ]

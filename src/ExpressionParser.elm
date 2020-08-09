@@ -3,30 +3,32 @@ module ExpressionParser exposing (parseExpression)
 import Expression exposing (..)
 import Parser exposing (..)
 
-parseExpression : String -> Result (List DeadEnd) Expression
-parseExpression = run (spaces |> andThen (\_ -> expression |. end))
+parseExpression : List String -> String -> Result (List DeadEnd) Expression
+parseExpression variables = run (spaces |> andThen (\_ -> expression variables |. end))
 
-expression : Parser Expression
-expression = chainl1 term <| oneOf [operator Add "+", operator Sub "-"]
+expression : List String -> Parser Expression
+expression variables = chainl1 (term variables) <| oneOf [operator Add "+", operator Sub "-"]
 
-term : Parser Expression
-term = chainl1 factor <| oneOf [operator Mul "*", operator Div "/", operator Mod "%"]
+term : List String -> Parser Expression
+term variables = chainl1 (factor variables) <| oneOf [operator Mul "*", operator Div "/", operator Mod "%"]
 
-factor : Parser Expression
-factor =
+factor : List String -> Parser Expression
+factor variables =
   oneOf
     [ number |. spaces
     , succeed Apply
         |= functionName |. spaces
         |. symbol "(" |. spaces
-        |= lazy (\_ -> expression)
+        |= lazy (\_ -> expression variables)
         |. symbol ")" |. spaces
+    , succeed Variable
+        |= getChompedString (oneOf <| List.map keyword variables) |. spaces
     , succeed Negate
         |. symbol  "-" |. spaces
-        |= lazy (\_ -> expression)
+        |= lazy (\_ -> expression variables)
     , succeed identity
         |. symbol "(" |. spaces
-        |= lazy (\_ -> expression)
+        |= lazy (\_ -> expression variables)
         |. symbol ")" |. spaces
     ]
 

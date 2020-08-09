@@ -113,7 +113,7 @@ bodyContent model =
     , formSection
         [ mainTitle
         , form [onSubmit TryToPush]
-          [ input [mainTextInputStyle, onInput UpdateNewExpression, placeholder "enter an expression, e.g. (1 + 2 * sin(5)) / 2"] []
+          [ input [mainTextInputStyle, onInput UpdateNewExpression, placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"] []
           ]
         , p [messageStyle] [text message]
         ]

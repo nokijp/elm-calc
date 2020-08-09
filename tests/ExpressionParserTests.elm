@@ -12,9 +12,17 @@ tests =
     [ describe "parseExpression"
         (validExpressions |> List.map (\(s, e) ->
           test ("it can parse " ++ s) <|
-            \_ -> parseExpression s |> Expect.equal (Ok e))
+            \_ -> parseExpression variables s |> Expect.equal (Ok e))
         )
     ]
+
+variables : List String
+variables =
+  [ "v"
+  , "v0"
+  , "abc"
+  , "exp"
+  ]
 
 validExpressions : List (String, Expression)
 validExpressions =
@@ -38,7 +46,11 @@ validExpressions =
   , (" sin ( 1 ) ", Apply Sin (Number 1.0))
   , (" cos ( 1 ) ", Apply Cos (Number 1.0))
   , (" tan ( 1 ) ", Apply Tan (Number 1.0))
-  , (" 1 + exp ( 2 ) ", Add (Number 1.0) (Apply Exp (Number 2.0)))
+  , (" 1 + exp ( 2 ) + 3 ", Add (Add (Number 1.0) (Apply Exp (Number 2.0))) (Number 3.0))
+  , (" v ", Variable "v")
+  , (" v0 ", Variable "v0")
+  , (" abc ", Variable "abc")
+  , (" 1 + v + 2 ", Add (Add (Number 1.0) (Variable "v")) (Number 2.0))
   , (" ( 1 ) ", Number 1.0)
   , (" ( ( ( 1 ) ) ) ", Number 1.0)
   , (" 1.5 ", Number 1.5)

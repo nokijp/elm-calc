@@ -1,5 +1,6 @@
 module ExpressionTests exposing (tests)
 
+import Dict exposing (Dict)
 import Expect
 import Test exposing (..)
 
@@ -11,8 +12,15 @@ tests =
     [ describe "runExpression"
         (expressions |> List.map (\(e, r) ->
           test ("it can evaluate " ++ Debug.toString e) <|
-            \_ -> runExpression e |> Expect.within (Expect.Absolute 1e-10) r)
+            \_ -> runExpression variables e |> Expect.within (Expect.Absolute 1e-10) r)
         )
+    ]
+
+variables : Dict String Float
+variables =
+  Dict.fromList
+    [ ("v1", 1.5)
+    , ("v2", 100.0)
     ]
 
 expressions : List (Expression, Float)
@@ -38,6 +46,8 @@ expressions =
   , (Apply Sin (Number 2.0), 0.9092974268)
   , (Apply Cos (Number 2.0), -0.4161468365)
   , (Apply Tan (Number 2.0), -2.1850398633)
+  , (Variable "v1", 1.5)
+  , (Variable "v2", 100.0)
   , (Add (Sub (Add (Number 1.0) (Number 2.0)) (Number 3.0)) (Number 4.0), 4.0)  -- 1 + 2 - 3 + 4
   , (Sub (Add (Number 1.0) (Number 2.0)) (Mul (Number 3.0) (Number 4.0)), -9.0)  -- 1 + 2 - 3 * 4
   ]
