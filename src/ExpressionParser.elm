@@ -34,7 +34,8 @@ functionName : Parser Function
 functionName =
   oneOf <|
     List.map (\(f, s) -> constMap f (keyword s))
-      [ (Exp, "exp")
+      [ (Sqrt, "sqrt")
+      , (Exp, "exp")
       , (Log, "log")
       , (Sin, "sin")
       , (Cos, "cos")

@@ -24,6 +24,7 @@ expressions =
   , (Sub (Number 2.0) (Number 3.0), -1.0)
   , (Mul (Number 2.0) (Number 3.0), 6.0)
   , (Div (Number 2.0) (Number 4.0), 0.5)
+  , (Apply Sqrt (Number 2.0), 1.4142135624)
   , (Apply Exp (Number 2.0), 7.3890560989)
   , (Apply Log (Number 10.0), 2.3025850930)
   , (Apply Sin (Number 2.0), 0.9092974268)

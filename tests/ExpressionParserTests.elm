@@ -32,6 +32,7 @@ validExpressions =
   , (" - 1 ", Negate (Number 1.0))
   , (" 1 + - 2 ", Add (Number 1.0) (Negate (Number 2.0)))
   , (" 1 * - 2 ", Mul (Number 1.0) (Negate (Number 2.0)))
+  , (" sqrt ( 1 ) ", Apply Sqrt (Number 1.0))
   , (" exp ( 1 ) ", Apply Exp (Number 1.0))
   , (" log ( 1 ) ", Apply Log (Number 1.0))
   , (" sin ( 1 ) ", Apply Sin (Number 1.0))

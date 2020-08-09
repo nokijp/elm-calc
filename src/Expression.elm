@@ -16,7 +16,8 @@ type Expression
   | Apply Function Expression
 
 type Function
-  = Exp
+  = Sqrt
+  | Exp
   | Log
   | Sin
   | Cos
@@ -34,6 +35,7 @@ runExpression expression =
     Mod e1 e2 -> fmod (runExpression e1) (runExpression e2)
     Apply f e ->
       case f of
+        Sqrt -> sqrt <| runExpression e
         Exp -> (\x -> Basics.e ^ x) <| runExpression e
         Log -> logBase Basics.e <| runExpression e
         Sin -> sin <| runExpression e
@@ -57,6 +59,7 @@ showExpression expression =
 functionName : Function -> String
 functionName f =
   case f of
+    Sqrt -> "sqrt"
     Exp -> "exp"
     Log -> "log"
     Sin -> "sin"
