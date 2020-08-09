@@ -16,8 +16,8 @@ factor : List String -> Parser Expression
 factor variables =
   oneOf
     [ number |. spaces
-    , succeed Apply
-        |= functionName |. spaces
+    , succeed Apply1
+        |= function1Name |. spaces
         |. symbol "(" |. spaces
         |= lazy (\_ -> expression variables)
         |. symbol ")" |. spaces
@@ -39,8 +39,8 @@ factor variables =
         |. symbol ")" |. spaces
     ]
 
-functionName : Parser Function
-functionName =
+function1Name : Parser Function1
+function1Name =
   oneOf <|
     List.map (\(f, s) -> constMap f (keyword s))
       [ (Sqrt, "sqrt")

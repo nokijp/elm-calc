@@ -7,7 +7,6 @@ import ExpressionParser exposing (..)
 import Html.Styled exposing (..)
 import Model exposing (..)
 import View exposing (..)
-import Dict
 
 main : Platform.Program () Model Msg
 main =
