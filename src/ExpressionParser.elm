@@ -4,7 +4,7 @@ import Expression exposing (..)
 import Parser exposing (..)
 
 parseExpression : String -> Result String Expression
-parseExpression s = Result.mapError Debug.toString <| run (expression |. end) s
+parseExpression s = Result.mapError Debug.toString <| run (spaces |> andThen (\_ -> expression |. end)) s
 
 expression : Parser Expression
 expression = chainl1 term <| oneOf [operator Add "+", operator Sub "-"]
@@ -15,17 +15,19 @@ term = chainl1 factor <| oneOf [operator Mul "*", operator Div "/", operator Mod
 factor : Parser Expression
 factor =
   oneOf
-    [ number
+    [ number |. spaces
     , succeed Apply
-        |= functionName
+        |= functionName |. spaces
+        |. symbol "(" |. spaces
         |= lazy (\_ -> expression)
+        |. symbol ")" |. spaces
     , succeed Negate
-        |. symbol  "-"
+        |. symbol  "-" |. spaces
         |= lazy (\_ -> expression)
     , succeed identity
-        |. symbol "("
+        |. symbol "(" |. spaces
         |= lazy (\_ -> expression)
-        |. symbol ")"
+        |. symbol ")" |. spaces
     ]
 
 functionName : Parser Function
@@ -43,7 +45,7 @@ number : Parser Expression
 number = backtrackable <| Parser.map Number float
 
 operator : a -> String -> Parser a
-operator a s = constMap a (symbol s)
+operator a s = constMap a (symbol s) |. spaces
 
 constMap : a -> Parser b -> Parser a
 constMap a p = Parser.map (\_ -> a) p
