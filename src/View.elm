@@ -15,6 +15,7 @@ bodyContent model =
     accentColor = rgb 0xee 0xaa 0x00
     primaryTextColor = rgb 0x55 0x55 0x55
     secondaryTextColor = rgb 0x99 0x99 0x99
+    placeholderTextColor = rgb 0xdd 0xdd 0xdd
 
     headerSectionStyle =
       css
@@ -31,7 +32,8 @@ bodyContent model =
 
     mainTextInputStyle =
       css
-        [ boxSizing borderBox
+        [ display block
+        , boxSizing borderBox
         , padding2 (rem 0.3) (rem 0.8)
         , width (pct 100)
         , outline zero
@@ -41,7 +43,7 @@ bodyContent model =
         , fontSize (rem 2.0)
         , property "-webkit-appearance" "none"
         , pseudoElement "placeholder"
-            [ color (rgb 0xcc 0xcc 0xcc)
+            [ color placeholderTextColor
             , opacity (num 1.0)
             ]
         ]
@@ -71,18 +73,19 @@ bodyContent model =
         ]
     historyClearButtonStyle =
       css
-        [ marginLeft (rem 0.5)
+        [ if List.isEmpty model.history then visibility hidden else visibility visible
+        , marginLeft (rem 0.5)
         , padding2 (rem 0.1) (rem 0.5)
         , outline zero
         , border3 (px 1.0) solid secondaryTextColor
         , borderRadius (rem 0.1)
         , backgroundColor transparent
-        , color (rgb 0x99 0x99 0x99)
+        , color secondaryTextColor
         , fontSize (rem 0.8)
         , cursor pointer
         , property "-webkit-appearance" "none"
         , hover
-            [ backgroundColor (rgb 0x99 0x99 0x99)
+            [ backgroundColor secondaryTextColor
             , color (rgb 0xff 0xff 0xff)
             ]
         ]
@@ -108,6 +111,13 @@ bodyContent model =
         , textAlign center
         , color (rgb 0xff 0xff 0xff)
         , fontSize (rem 0.8)
+        ]
+    emptyHistoryMessageStyle =
+      css
+        [ margin2 (rem 4.0) zero
+        , textAlign center
+        , color placeholderTextColor
+        , fontSize (rem 2.0)
         ]
 
     message =
@@ -135,13 +145,17 @@ bodyContent model =
             [ h1 [historySectionTitleStyle] [text "History"]
             , button [historyClearButtonStyle, onClick ClearHistory] [text "Clear"] 
             ]
-        , ul [historyListContainerStyle] <|
-            let
-              historyItem (expr, res, var) =
-                li [historyListItemStyle]
-                  [ span [variableLabelStyle] [text var]
-                  , text <| expr ++ " = " ++ String.fromFloat res
-                  ]
-            in List.map historyItem model.history
+        , if List.isEmpty model.history
+          then
+            p [emptyHistoryMessageStyle] [text "hit the enter key to push an expression to here"]
+          else
+            ul [historyListContainerStyle] <|
+              let
+                historyItem (expr, res, var) =
+                  li [historyListItemStyle]
+                    [ span [variableLabelStyle] [text var]
+                    , text <| expr ++ " = " ++ String.fromFloat res
+                    ]
+              in List.map historyItem model.history
         ]
     ]
