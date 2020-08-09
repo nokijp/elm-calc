@@ -21,6 +21,13 @@ factor variables =
         |. symbol "(" |. spaces
         |= lazy (\_ -> expression variables)
         |. symbol ")" |. spaces
+    , succeed Apply2
+        |= function2Name |. spaces
+        |. symbol "(" |. spaces
+        |= lazy (\_ -> expression variables)
+        |. symbol "," |. spaces
+        |= lazy (\_ -> expression variables)
+        |. symbol ")" |. spaces
     , succeed Variable
         |= getChompedString (oneOf <| List.map keyword variables) |. spaces
     , succeed Negate
@@ -42,6 +49,13 @@ functionName =
       , (Sin, "sin")
       , (Cos, "cos")
       , (Tan, "tan")
+      ]
+
+function2Name : Parser Function2
+function2Name =
+  oneOf <|
+    List.map (\(f, s) -> constMap f (keyword s))
+      [ (Pow, "pow")
       ]
 
 number : Parser Expression

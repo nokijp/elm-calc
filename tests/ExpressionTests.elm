@@ -46,6 +46,7 @@ expressions =
   , (Apply Sin (Number 2.0), 0.9092974268)
   , (Apply Cos (Number 2.0), -0.4161468365)
   , (Apply Tan (Number 2.0), -2.1850398633)
+  , (Apply2 Pow (Number 2.0) (Number 3.0), 8.0)
   , (Variable "v1", 1.5)
   , (Variable "v2", 100.0)
   , (Add (Sub (Add (Number 1.0) (Number 2.0)) (Number 3.0)) (Number 4.0), 4.0)  -- 1 + 2 - 3 + 4
