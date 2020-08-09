@@ -2,13 +2,41 @@ module ExpressionParserTests exposing (tests)
 
 import Expect
 import Test exposing (..)
+import Expression exposing (..)
 import ExpressionParser exposing (..)
 
 tests : Test
 tests =
   describe "ExpressionParser"
     [ describe "parseExpression"
-        [ test "it should return an error when given \"error\"" <|
-            \_ -> parseExpression "error" |> Expect.equal (Err "error")
-        ]
+        (validExpressions |> List.map (\(s, e) ->
+          test ("it can parse " ++ s) <|
+            \_ -> parseExpression s |> Expect.equal (Ok e))
+        )
     ]
+
+validExpressions : List (String, Expression)
+validExpressions =
+  [ ("1", Number 1.0)
+  , ("1+2", Add (Number 1.0) (Number 2.0))
+  , ("1+2+3", Add (Add (Number 1.0) (Number 2.0)) (Number 3.0))
+  , ("1+2-3+4", Add (Sub (Add (Number 1.0) (Number 2.0)) (Number 3.0)) (Number 4.0))
+  , ("1+2*3", Add (Number 1.0) (Mul (Number 2.0) (Number 3.0)))
+  , ("1+2/3*4", Add (Number 1.0) (Mul (Div (Number 2.0) (Number 3.0)) (Number 4.0)))
+  , ("1+2/3*4+5", Add (Add (Number 1.0) (Mul (Div (Number 2.0) (Number 3.0)) (Number 4.0))) (Number 5.0))
+  , ("1+(2+3)+4", Add (Add (Number 1.0) (Add (Number 2.0) (Number 3.0))) (Number 4.0))
+  , ("(1+2)*3", Mul (Add (Number 1.0) (Number 2.0)) (Number 3.0))
+  , ("1*(2+3)", Mul (Number 1.0) (Add (Number 2.0) (Number 3.0)))
+  , ("-1", Negate (Number 1.0))
+  , ("1+-2", Add (Number 1.0) (Negate (Number 2.0)))
+  , ("1*-2", Mul (Number 1.0) (Negate (Number 2.0)))
+  , ("exp(1)", Apply Exp (Number 1.0))
+  , ("log(1)", Apply Log (Number 1.0))
+  , ("sin(1)", Apply Sin (Number 1.0))
+  , ("cos(1)", Apply Cos (Number 1.0))
+  , ("tan(1)", Apply Tan (Number 1.0))
+  , ("1+exp(2)", Add (Number 1.0) (Apply Exp (Number 2.0)))
+  , ("(1)", Number 1.0)
+  , ("1.5", Number 1.5)
+  , ("1.5+2.5", Add (Number 1.5) (Number 2.5))
+  ]
