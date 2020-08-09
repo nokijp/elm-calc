@@ -2,6 +2,7 @@ module ExpressionParserTests exposing (tests)
 
 import Expect
 import Test exposing (..)
+
 import Expression exposing (..)
 import ExpressionParser exposing (..)
 
