@@ -33,14 +33,12 @@ runExpression expression =
     Mul e1 e2 -> runExpression e1 * runExpression e2
     Div e1 e2 -> runExpression e1 / runExpression e2
     Mod e1 e2 -> fmod (runExpression e1) (runExpression e2)
-    Apply f e ->
-      case f of
-        Sqrt -> sqrt <| runExpression e
-        Exp -> (\x -> Basics.e ^ x) <| runExpression e
-        Log -> logBase Basics.e <| runExpression e
-        Sin -> sin <| runExpression e
-        Cos -> cos <| runExpression e
-        Tan -> tan <| runExpression e
+    Apply Sqrt e -> sqrt <| runExpression e
+    Apply Exp e -> (\x -> Basics.e ^ x) <| runExpression e
+    Apply Log e -> logBase Basics.e <| runExpression e
+    Apply Sin e -> sin <| runExpression e
+    Apply Cos e -> cos <| runExpression e
+    Apply Tan e -> tan <| runExpression e
 
 showExpression : Expression -> String
 showExpression expression =
