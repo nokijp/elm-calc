@@ -2,10 +2,10 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (..)
+import Html.Attributes exposing (placeholder)
 import Html.Events exposing (..)
 import Expression exposing (..)
 import ExpressionParser exposing (..)
-import Html.Attributes exposing (placeholder)
 
 type Msg
   = TryToPush
@@ -14,7 +14,7 @@ type Msg
 
 type NewExpression = ExpressionEmpty | ExpressionErr String | ExpressionOk Expression
 type alias Model =
-  { history : List Expression
+  { history : List (Expression, Float)
   , newExpression : NewExpression
   }
 
@@ -37,7 +37,7 @@ update msg model =
   case msg of
     TryToPush -> 
       case model.newExpression of
-        ExpressionOk e -> { model | history = e :: model.history }
+        ExpressionOk e -> { model | history = (e, runExpression e) :: model.history }
         _ -> model
     UpdateNewExpression input ->
       let
@@ -48,25 +48,27 @@ update msg model =
         resultToNewExpression res =
           case res of
              Ok e -> ExpressionOk e
-             Err s -> ExpressionErr s
+             Err _ -> ExpressionErr "invalid expression"
       in { model | newExpression = newExpression }
     ClearHistory -> { model | history = [] }
 
 view : Model -> Html Msg
 view model =
   let
-    errorMessage =
+    message =
       case model.newExpression of
+         ExpressionEmpty -> ""
          ExpressionErr e -> e
-         _ -> ""
+         ExpressionOk e -> "= " ++ String.fromFloat (runExpression e)
   in div []
     [ form [ onSubmit TryToPush ]
       [ input [ onInput UpdateNewExpression, placeholder "enter an expression, e.g. 1 + 1 * 3" ] []
       ]
-    , p [] [ text errorMessage ]
+    , p [] [ text message ]
     , button [ onClick ClearHistory ] [ text "clear" ]
     , div [] [ historyView model.history ]
     ]
 
-historyView : List Expression -> Html a
-historyView expressions = text <| String.join "" <| List.map showExpression expressions
+historyView : List (Expression, Float) -> Html a
+historyView history =
+  ul [] <| List.map (\(e, res) -> li [] [text <| showExpression e ++ " = " ++ String.fromFloat res]) history

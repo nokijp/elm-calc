@@ -3,8 +3,8 @@ module ExpressionParser exposing (parseExpression)
 import Expression exposing (..)
 import Parser exposing (..)
 
-parseExpression : String -> Result String Expression
-parseExpression s = Result.mapError Debug.toString <| run (spaces |> andThen (\_ -> expression |. end)) s
+parseExpression : String -> Result (List DeadEnd) Expression
+parseExpression = run (spaces |> andThen (\_ -> expression |. end))
 
 expression : Parser Expression
 expression = chainl1 term <| oneOf [operator Add "+", operator Sub "-"]
@@ -49,7 +49,7 @@ operator : a -> String -> Parser a
 operator a s = constMap a (symbol s) |. spaces
 
 constMap : a -> Parser b -> Parser a
-constMap a p = Parser.map (\_ -> a) p
+constMap a = Parser.map (\_ -> a)
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p sep =
