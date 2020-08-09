@@ -99,21 +99,35 @@ bodyContent model =
         ]
     historyListItemStyle =
       css
+        [ displayFlex
+        , margin3 (rem 0.5) zero (rem 1.5)
+        , alignItems center
+        ]
+    variableLabelStyle =
+      css
         [ display block
-        , margin3 (rem 0.8) zero (rem 2.0)
+        , marginRight (rem 0.5)
+        , height (rem 1.1)
+        , width (rem 3.5)
+        , lineHeight (rem 1.1)
+        , borderRadius (rem 0.1)
+        , backgroundColor (rgb 0xe9 0xb0 0x00)
+        , textAlign center
+        , color (rgb 0xff 0xff 0xff)
+        , fontSize (rem 0.8)
         ]
 
     message =
-      case model.newExpression of
-         ExpressionEmpty -> ""
-         ExpressionErr e -> e
-         ExpressionOk _ _ r -> "= " ++ String.fromFloat r
+      case model.input of
+         InputEmpty -> ""
+         InputErr e -> e
+         InputOk _ r -> "= " ++ String.fromFloat r
   in
     [ Reset.meyerV2
     , formSection
         [ mainTitle
         , form [onSubmit TryToPush]
-          [ input [mainTextInputStyle, onInput UpdateNewExpression, placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"] []
+          [ input [mainTextInputStyle, onInput UpdateInput, placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"] []
           ]
         , p [messageStyle] [text message]
         ]
@@ -123,6 +137,12 @@ bodyContent model =
             , button [historyClearButtonStyle, onClick ClearHistory] [text "Clear"] 
             ]
         , ul [historyListContainerStyle] <|
-            List.map (\(s, res) -> li [historyListItemStyle] [text <| s ++ " = " ++ String.fromFloat res]) model.history
+            let
+              historyItem (expr, res, var) =
+                li [historyListItemStyle]
+                  [ span [variableLabelStyle] [text var]
+                  , text <| expr ++ " = " ++ String.fromFloat res
+                  ]
+            in List.map historyItem model.history
         ]
     ]

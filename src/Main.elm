@@ -7,6 +7,7 @@ import ExpressionParser exposing (..)
 import Html.Styled exposing (..)
 import Model exposing (..)
 import View exposing (..)
+import Dict
 
 main : Platform.Program () Model Msg
 main =
@@ -20,28 +21,45 @@ main =
 init : Model
 init =
   { history = []
-  , newExpression = ExpressionEmpty
+  , input = InputEmpty
+  , variables = defaultVariables
   }
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     TryToPush -> 
-      case model.newExpression of
-        ExpressionOk s _ r -> { model | history = (s, r) :: model.history }
+      case model.input of
+        InputOk s r ->
+          let
+            newHistory = (s, r, newVariableName) :: model.history
+            newVariables = Dict.insert newVariableName r model.variables
+            newVariableName = "res" ++ String.fromInt (List.length model.history + 1)
+          in
+            { model
+            | history = newHistory
+            , variables = newVariables
+            }
         _ -> model
-    UpdateNewExpression input ->
+    UpdateInput input ->
       let
-        newExpression =
+        newInput =
           if String.isEmpty input
-          then ExpressionEmpty
-          else resultToNewExpression <| parseExpression (Dict.keys defaultVariables) input
+          then InputEmpty
+          else resultToNewExpression <| parseExpression (Dict.keys model.variables) input
         resultToNewExpression res =
           case res of
-             Ok e -> ExpressionOk input e (runExpression defaultVariables e)
-             Err _ -> ExpressionErr "invalid expression"
-      in { model | newExpression = newExpression }
-    ClearHistory -> { model | history = [] }
+            Ok e -> InputOk input (runExpression model.variables e)
+            Err _ -> InputErr "invalid expression"
+      in
+        { model
+        | input = newInput
+        }
+    ClearHistory ->
+      { model
+      | history = []
+      , variables = defaultVariables
+      }
 
 view : Model -> Document Msg
 view model =

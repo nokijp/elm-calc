@@ -1,22 +1,24 @@
 module Model exposing
   ( Msg(..)
-  , NewExpression(..)
+  , Input(..)
   , Model
   )
 
+import Dict exposing (Dict)
 import Expression exposing (..)
 
 type Msg
   = TryToPush
-  | UpdateNewExpression String
+  | UpdateInput String
   | ClearHistory
 
-type NewExpression
-  = ExpressionEmpty
-  | ExpressionErr String
-  | ExpressionOk String Expression Float
+type Input
+  = InputEmpty
+  | InputErr String
+  | InputOk String Float
 
 type alias Model =
-  { history : List (String, Float)
-  , newExpression : NewExpression
+  { history : List (String, Float, String)
+  , input : Input
+  , variables : Dict String Float
   }
