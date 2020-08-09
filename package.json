@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "elm make src/Main.elm --output=dist/index.html --optimize",
-    "test": "npm-test"
+    "test": "elm-test"
   },
   "author": "",
   "license": "ISC",
