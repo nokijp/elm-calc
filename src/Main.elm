@@ -1,29 +1,19 @@
 module Main exposing (main)
 
-import Browser
-import Html exposing (..)
-import Html.Attributes exposing (placeholder)
-import Html.Events exposing (..)
+import Browser exposing (..)
 import Expression exposing (..)
 import ExpressionParser exposing (..)
-
-type Msg
-  = TryToPush
-  | UpdateNewExpression String
-  | ClearHistory
-
-type NewExpression = ExpressionEmpty | ExpressionErr String | ExpressionOk String Expression
-type alias Model =
-  { history : List (String, Float)
-  , newExpression : NewExpression
-  }
+import Html.Styled exposing (..)
+import Model exposing (..)
+import View exposing (..)
 
 main : Platform.Program () Model Msg
 main =
-  Browser.sandbox
-    { init = init
-    , update = update
+  Browser.document
+    { init = \_ -> (init, Cmd.none)
     , view = view
+    , update = \msg model -> (update msg model, Cmd.none)
+    , subscriptions = \_ -> Sub.none
     }
 
 init : Model
@@ -37,7 +27,7 @@ update msg model =
   case msg of
     TryToPush -> 
       case model.newExpression of
-        ExpressionOk s e -> { model | history = (s, runExpression e) :: model.history }
+        ExpressionOk s _ r -> { model | history = (s, r) :: model.history }
         _ -> model
     UpdateNewExpression input ->
       let
@@ -47,28 +37,13 @@ update msg model =
           else resultToNewExpression <| parseExpression input
         resultToNewExpression res =
           case res of
-             Ok e -> ExpressionOk input e
+             Ok e -> ExpressionOk input e (runExpression e)
              Err _ -> ExpressionErr "invalid expression"
       in { model | newExpression = newExpression }
     ClearHistory -> { model | history = [] }
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-  let
-    message =
-      case model.newExpression of
-         ExpressionEmpty -> ""
-         ExpressionErr e -> e
-         ExpressionOk _ e -> "= " ++ String.fromFloat (runExpression e)
-  in div []
-    [ form [ onSubmit TryToPush ]
-      [ input [ onInput UpdateNewExpression, placeholder "enter an expression, e.g. (1 + 2 * sin(5)) / 2" ] []
-      ]
-    , p [] [ text message ]
-    , button [ onClick ClearHistory ] [ text "clear" ]
-    , div [] [ historyView model.history ]
-    ]
-
-historyView : List (String, Float) -> Html a
-historyView history =
-  ul [] <| List.map (\(s, res) -> li [] [text <| s ++ " = " ++ String.fromFloat res]) history
+  { title = "Elm Calc"
+  , body = List.map toUnstyled <| bodyContent model
+  }
