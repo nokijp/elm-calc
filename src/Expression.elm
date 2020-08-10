@@ -15,6 +15,7 @@ type Expression
   | Mul Expression Expression
   | Div Expression Expression
   | Mod Expression Expression
+  | Pow Expression Expression
   | Apply1 Function1 Expression
   | Apply2 Function2 Expression Expression
   | Variable String
@@ -28,7 +29,7 @@ type Function1
   | Tan
 
 type Function2
-  = Pow
+  = PowFunc
 
 runExpression : Dict String Float -> Expression -> Float
 runExpression variables expression =
@@ -42,13 +43,14 @@ runExpression variables expression =
       Mul e1 e2 -> run e1 * run e2
       Div e1 e2 -> run e1 / run e2
       Mod e1 e2 -> fmod (run e1) (run e2)
+      Pow e1 e2 -> run e1 ^ run e2
       Apply1 Sqrt e -> sqrt <| run e
       Apply1 Exp e -> Basics.e ^ run e
       Apply1 Log e -> logBase Basics.e <| run e
       Apply1 Sin e -> sin <| run e
       Apply1 Cos e -> cos <| run e
       Apply1 Tan e -> tan <| run e
-      Apply2 Pow e1 e2 -> run e1 ^ run e2
+      Apply2 PowFunc e1 e2 -> run e1 ^ run e2
       Variable s -> let nan = 0.0 / 0.0 in Maybe.withDefault nan <| Dict.get s variables
 
 fmod : Float -> Float -> Float

@@ -7,10 +7,14 @@ parseExpression : List String -> String -> Result (List DeadEnd) Expression
 parseExpression variables = run (spaces |> andThen (\_ -> expression variables |. end))
 
 expression : List String -> Parser Expression
-expression variables = chainl1 (term variables) <| oneOf [operator Add "+", operator Sub "-"]
+expression = term binaryOperators
 
-term : List String -> Parser Expression
-term variables = chainl1 (factor variables) <| oneOf [operator Mul "*", operator Div "/", operator Mod "%"]
+term : List (List (Expression -> Expression -> Expression, String)) -> List String -> Parser Expression
+term operators variables =
+  case operators of
+    [] -> factor variables
+    (ops :: nextLevelOps) ->
+      chainl1 (term nextLevelOps variables) <| oneOf <| List.map (\(op, s) -> constMap op (symbol s) |. spaces) ops
 
 factor : List String -> Parser Expression
 factor variables =
@@ -39,6 +43,13 @@ factor variables =
         |. symbol ")" |. spaces
     ]
 
+binaryOperators : List (List (Expression -> Expression -> Expression, String))
+binaryOperators =
+  [ [(Add, "+"), (Sub, "-")]
+  , [(Mul, "*"), (Div, "/"), (Mod, "%")]
+  , [(Pow, "^")]
+  ]
+
 function1Name : Parser Function1
 function1Name =
   oneOf <|
@@ -55,14 +66,11 @@ function2Name : Parser Function2
 function2Name =
   oneOf <|
     List.map (\(f, s) -> constMap f (keyword s))
-      [ (Pow, "pow")
+      [ (PowFunc, "pow")
       ]
 
 number : Parser Expression
 number = backtrackable <| Parser.map Number float
-
-operator : a -> String -> Parser a
-operator a s = constMap a (symbol s) |. spaces
 
 constMap : a -> Parser b -> Parser a
 constMap a = Parser.map (\_ -> a)

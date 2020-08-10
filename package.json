@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "elm reactor",
     "build": "elm make src/Main.elm --output=dist/index.html --optimize",
     "test": "elm-test"
   },
