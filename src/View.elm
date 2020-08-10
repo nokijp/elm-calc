@@ -1,9 +1,10 @@
 module View exposing (bodyContent)
 
 import Css exposing (..)
+import Css.Global as Global
 import Css.Reset as Reset
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, placeholder, value)
+import Html.Styled.Attributes exposing (css, class, placeholder, value)
 import Html.Styled.Events exposing (..)
 import Model exposing (..)
 
@@ -11,25 +12,99 @@ bodyContent : Model -> List (Html Msg)
 bodyContent model =
   let
     pageWidth = px 1000
+    pageBackgroundColor = rgb 0xff 0xff 0xff
     primaryColor = rgb 0x33 0x99 0xff
     accentColor = rgb 0xee 0xaa 0x00
     primaryTextColor = rgb 0x55 0x55 0x55
     secondaryTextColor = rgb 0x99 0x99 0x99
-    placeholderTextColor = rgb 0xdd 0xdd 0xdd
+    placeholderTextColor = rgb 0xe8 0xe8 0xe8
 
-    headerSectionStyle =
+    globalStyle =
+      Global.global
+        [ Global.html
+            [ backgroundColor pageBackgroundColor
+            , color primaryTextColor
+            , fontFamily sansSerif
+            ]
+        ]
+
+    headerStyle =
       css
-        [ margin3 (rem 6.0) auto (rem 5.0)
+        [ displayFlex
+        , alignItems flexEnd
+        , margin3 (rem 6.0) auto (rem 0.4)
         , width pageWidth
-        , color primaryTextColor
         ]
     mainTitleStyle =
       css
-        [ paddingBottom (rem 0.4)
-        , textTransform lowercase
+        [ textTransform lowercase
         , fontSize (rem 1.5)
         ]
+    functionTableClass = "function-table"
+    functionTableContainerStyle =
+      css
+        [ position relative
+        , marginLeft auto
+        , Global.descendants [Global.class functionTableClass [display none]]
+        , hover [Global.descendants [Global.class functionTableClass [display block]]]
+        ]
+    functionTableLabelStyle =
+      css
+        [ color secondaryTextColor
+        , after
+            [ property "content" "''"
+            , position relative
+            , top (rem 0.8)
+            , verticalAlign bottom
+            , marginLeft (rem 0.3)
+            , height zero
+            , width zero
+            , borderStyle solid
+            , borderWidth4 (rem 0.3) (rem 0.3) zero (rem 0.3)
+            , borderColor4 secondaryTextColor transparent transparent transparent
+            ]
+        ]
+    functionTableStyle =
+      css
+        [ position absolute
+        , right zero
+        , padding (rem 1.0)
+        , width (px 500)
+        , borderRadius (rem 0.1)
+        , boxShadow4 zero zero (rem 0.12) (rgba 0x00 0x00 0x00 0.3)
+        , backgroundColor pageBackgroundColor
+        , property "columns" "2"
+        ]
+    functionTableHeadingStyle =
+      css
+        [ color secondaryTextColor
+        ]
+    functionTableListStyle =
+      css
+        [ marginBottom (rem 1.0)
+        , fontSize (rem 0.8)
+        ]
+    functionTableListItemStyle =
+      css
+        [ margin2 (rem 0.8) zero
+        , lineHeight (rem 1.2)
+        ]
+    functionTableFunctionStyle =
+      css
+        [ display inlineBlock
+        , marginRight (rem 0.3)
+        , padding2 zero (rem 0.3)
+        , borderRadius (rem 0.1)
+        , backgroundColor secondaryTextColor
+        , color pageBackgroundColor
+        , fontSize (rem 0.6)
+        ]
 
+    formSectionStyle =
+      css
+        [ margin3 zero auto (rem 5.0)
+        , width pageWidth
+        ]
     mainTextInputStyle =
       css
         [ display block
@@ -59,7 +134,6 @@ bodyContent model =
         [ margin2 zero auto
         , padding2 (rem 1.0) zero
         , width pageWidth
-        , color primaryTextColor
         ]
     historySectionHeaderStyle =
       css
@@ -86,7 +160,7 @@ bodyContent model =
         , property "-webkit-appearance" "none"
         , hover
             [ backgroundColor secondaryTextColor
-            , color (rgb 0xff 0xff 0xff)
+            , color pageBackgroundColor
             ]
         ]
     historyListContainerStyle =
@@ -109,7 +183,7 @@ bodyContent model =
         , borderRadius (rem 0.1)
         , backgroundColor accentColor
         , textAlign center
-        , color (rgb 0xff 0xff 0xff)
+        , color pageBackgroundColor
         , fontSize (rem 0.8)
         ]
     emptyHistoryMessageStyle =
@@ -127,9 +201,44 @@ bodyContent model =
          CalcResultOk r -> "= " ++ String.fromFloat r
   in
     [ Reset.meyerV2
-    , div [headerSectionStyle]
+    , globalStyle
+    , header [headerStyle]
         [ h1 [mainTitleStyle] [text "Elm Calc"]
-        , form [onSubmit TryToPush]
+        , div [functionTableContainerStyle]
+            [ div [functionTableLabelStyle] [text "functions and constants"]
+            , div [functionTableStyle, class functionTableClass] <|
+                let
+                  item expr desc =
+                    li [functionTableListItemStyle]
+                      [ span [functionTableFunctionStyle] [text expr]
+                      , text desc
+                      ]
+                in
+                  [ section []
+                      [ h1 [functionTableHeadingStyle] [text "Functions"]
+                      , ul [functionTableListStyle]
+                          [ item "sqrt(x)" "square root function"
+                          , item "exp(x)" "natural exponential function"
+                          , item "log(x)" "natural logarithm function"
+                          , item "sin(x)" "sine function"
+                          , item "cos(x)" "cosine function"
+                          , item "tan(x)" "tangent function"
+                          , item "pow(x, y)" "power function, the same as x ^ y"
+                          ]
+                      ]
+                  , section []
+                      [ h1 [functionTableHeadingStyle] [text "Constants"]
+                      , ul [functionTableListStyle]
+                          [ item "pi" "circular constant"
+                          , item "e" "base of natural logarithm"
+                          , item "res1, res2, ..." "results in the history"
+                          ]
+                      ]
+                  ]
+            ]
+        ]
+    , section [formSectionStyle]
+        [ form [onSubmit TryToPush]
           [ input
               [ mainTextInputStyle
               , onInput UpdateInput
@@ -137,8 +246,8 @@ bodyContent model =
               , placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"
               ]
               []
+          , p [messageStyle] [text message]
           ]
-        , p [messageStyle] [text message]
         ]
     , section [historySectionStyle]
         [ div [historySectionHeaderStyle]
