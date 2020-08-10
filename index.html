@@ -5533,7 +5533,7 @@ var $author$project$Expression$Add = F2(
 	function (a, b) {
 		return {$: 2, a: a, b: b};
 	});
-var $author$project$Expression$Apply = F2(
+var $author$project$Expression$Apply1 = F2(
 	function (a, b) {
 		return {$: 7, a: a, b: b};
 	});
@@ -5702,7 +5702,12 @@ var $author$project$ExpressionParser$chainl1 = F2(
 							return p;
 						}))));
 	});
-var $author$project$Expression$Pow = 0;
+var $author$project$Expression$Cos = 4;
+var $author$project$Expression$Exp = 1;
+var $author$project$Expression$Log = 2;
+var $author$project$Expression$Sin = 3;
+var $author$project$Expression$Sqrt = 0;
+var $author$project$Expression$Tan = 5;
 var $elm$parser$Parser$Advanced$map = F2(
 	function (func, _v0) {
 		var parse = _v0;
@@ -5776,28 +5781,7 @@ var $elm$parser$Parser$keyword = function (kwd) {
 			kwd,
 			$elm$parser$Parser$ExpectingKeyword(kwd)));
 };
-var $author$project$ExpressionParser$function2Name = $elm$parser$Parser$oneOf(
-	A2(
-		$elm$core$List$map,
-		function (_v0) {
-			var f = _v0.a;
-			var s = _v0.b;
-			return A2(
-				$author$project$ExpressionParser$constMap,
-				f,
-				$elm$parser$Parser$keyword(s));
-		},
-		_List_fromArray(
-			[
-				_Utils_Tuple2(0, 'pow')
-			])));
-var $author$project$Expression$Cos = 4;
-var $author$project$Expression$Exp = 1;
-var $author$project$Expression$Log = 2;
-var $author$project$Expression$Sin = 3;
-var $author$project$Expression$Sqrt = 0;
-var $author$project$Expression$Tan = 5;
-var $author$project$ExpressionParser$functionName = $elm$parser$Parser$oneOf(
+var $author$project$ExpressionParser$function1Name = $elm$parser$Parser$oneOf(
 	A2(
 		$elm$core$List$map,
 		function (_v0) {
@@ -5816,6 +5800,22 @@ var $author$project$ExpressionParser$functionName = $elm$parser$Parser$oneOf(
 				_Utils_Tuple2(3, 'sin'),
 				_Utils_Tuple2(4, 'cos'),
 				_Utils_Tuple2(5, 'tan')
+			])));
+var $author$project$Expression$Pow = 0;
+var $author$project$ExpressionParser$function2Name = $elm$parser$Parser$oneOf(
+	A2(
+		$elm$core$List$map,
+		function (_v0) {
+			var f = _v0.a;
+			var s = _v0.b;
+			return A2(
+				$author$project$ExpressionParser$constMap,
+				f,
+				$elm$parser$Parser$keyword(s));
+		},
+		_List_fromArray(
+			[
+				_Utils_Tuple2(0, 'pow')
 			])));
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
@@ -6145,12 +6145,12 @@ var $author$project$ExpressionParser$factor = function (variables) {
 				$elm$parser$Parser$keeper,
 				A2(
 					$elm$parser$Parser$keeper,
-					$elm$parser$Parser$succeed($author$project$Expression$Apply),
+					$elm$parser$Parser$succeed($author$project$Expression$Apply1),
 					A2(
 						$elm$parser$Parser$ignorer,
 						A2(
 							$elm$parser$Parser$ignorer,
-							A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$functionName, $elm$parser$Parser$spaces),
+							A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$function1Name, $elm$parser$Parser$spaces),
 							$elm$parser$Parser$symbol('(')),
 						$elm$parser$Parser$spaces)),
 				A2(
