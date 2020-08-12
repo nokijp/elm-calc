@@ -5531,17 +5531,20 @@ var $elm$parser$Parser$Advanced$end = function (x) {
 var $elm$parser$Parser$end = $elm$parser$Parser$Advanced$end($elm$parser$Parser$ExpectingEnd);
 var $author$project$Expression$Apply1 = F2(
 	function (a, b) {
-		return {$: 8, a: a, b: b};
+		return {$: 9, a: a, b: b};
 	});
 var $author$project$Expression$Apply2 = F3(
 	function (a, b, c) {
-		return {$: 9, a: a, b: b, c: c};
+		return {$: 10, a: a, b: b, c: c};
 	});
+var $author$project$Expression$Factorial = function (a) {
+	return {$: 8, a: a};
+};
 var $author$project$Expression$Negate = function (a) {
 	return {$: 1, a: a};
 };
 var $author$project$Expression$Variable = function (a) {
-	return {$: 10, a: a};
+	return {$: 11, a: a};
 };
 var $author$project$Expression$Add = F2(
 	function (a, b) {
@@ -5567,24 +5570,154 @@ var $author$project$Expression$Sub = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
 	});
-var $author$project$ExpressionParser$binaryOperators = _List_fromArray(
-	[
-		_List_fromArray(
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
+	});
+var $elm$parser$Parser$Advanced$map = F2(
+	function (func, _v0) {
+		var parse = _v0;
+		return function (s0) {
+			var _v1 = parse(s0);
+			if (!_v1.$) {
+				var p = _v1.a;
+				var a = _v1.b;
+				var s1 = _v1.c;
+				return A3(
+					$elm$parser$Parser$Advanced$Good,
+					p,
+					func(a),
+					s1);
+			} else {
+				var p = _v1.a;
+				var x = _v1.b;
+				return A2($elm$parser$Parser$Advanced$Bad, p, x);
+			}
+		};
+	});
+var $elm$parser$Parser$map = $elm$parser$Parser$Advanced$map;
+var $author$project$ExpressionParser$constMap = function (a) {
+	return $elm$parser$Parser$map(
+		$elm$core$Basics$always(a));
+};
+var $elm$parser$Parser$Advanced$Append = F2(
+	function (a, b) {
+		return {$: 2, a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$oneOfHelp = F3(
+	function (s0, bag, parsers) {
+		oneOfHelp:
+		while (true) {
+			if (!parsers.b) {
+				return A2($elm$parser$Parser$Advanced$Bad, false, bag);
+			} else {
+				var parse = parsers.a;
+				var remainingParsers = parsers.b;
+				var _v1 = parse(s0);
+				if (!_v1.$) {
+					var step = _v1;
+					return step;
+				} else {
+					var step = _v1;
+					var p = step.a;
+					var x = step.b;
+					if (p) {
+						return step;
+					} else {
+						var $temp$s0 = s0,
+							$temp$bag = A2($elm$parser$Parser$Advanced$Append, bag, x),
+							$temp$parsers = remainingParsers;
+						s0 = $temp$s0;
+						bag = $temp$bag;
+						parsers = $temp$parsers;
+						continue oneOfHelp;
+					}
+				}
+			}
+		}
+	});
+var $elm$parser$Parser$Advanced$oneOf = function (parsers) {
+	return function (s) {
+		return A3($elm$parser$Parser$Advanced$oneOfHelp, s, $elm$parser$Parser$Advanced$Empty, parsers);
+	};
+};
+var $elm$parser$Parser$oneOf = $elm$parser$Parser$Advanced$oneOf;
+var $elm$parser$Parser$ExpectingSymbol = function (a) {
+	return {$: 8, a: a};
+};
+var $elm$parser$Parser$Advanced$Token = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Basics$not = _Basics_not;
+var $elm$parser$Parser$Advanced$token = function (_v0) {
+	var str = _v0.a;
+	var expecting = _v0.b;
+	var progress = !$elm$core$String$isEmpty(str);
+	return function (s) {
+		var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.b, s.ch, s.bE, s.a);
+		var newOffset = _v1.a;
+		var newRow = _v1.b;
+		var newCol = _v1.c;
+		return _Utils_eq(newOffset, -1) ? A2(
+			$elm$parser$Parser$Advanced$Bad,
+			false,
+			A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
+			$elm$parser$Parser$Advanced$Good,
+			progress,
+			0,
+			{bE: newCol, f: s.f, g: s.g, b: newOffset, ch: newRow, a: s.a});
+	};
+};
+var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
+var $elm$parser$Parser$symbol = function (str) {
+	return $elm$parser$Parser$Advanced$symbol(
+		A2(
+			$elm$parser$Parser$Advanced$Token,
+			str,
+			$elm$parser$Parser$ExpectingSymbol(str)));
+};
+var $author$project$ExpressionParser$binaryOperators = A2(
+	$elm$core$List$map,
+	A2(
+		$elm$core$Basics$composeL,
+		$elm$parser$Parser$oneOf,
+		$elm$core$List$map(
+			function (_v0) {
+				var op = _v0.a;
+				var s = _v0.b;
+				return A2(
+					$author$project$ExpressionParser$constMap,
+					op,
+					$elm$parser$Parser$symbol(s));
+			})),
+	_List_fromArray(
 		[
-			_Utils_Tuple2($author$project$Expression$Add, '+'),
-			_Utils_Tuple2($author$project$Expression$Sub, '-')
-		]),
-		_List_fromArray(
-		[
-			_Utils_Tuple2($author$project$Expression$Mul, '*'),
-			_Utils_Tuple2($author$project$Expression$Div, '/'),
-			_Utils_Tuple2($author$project$Expression$Mod, '%')
-		]),
-		_List_fromArray(
-		[
-			_Utils_Tuple2($author$project$Expression$Pow, '^')
-		])
-	]);
+			_List_fromArray(
+			[
+				_Utils_Tuple2($author$project$Expression$Add, '+'),
+				_Utils_Tuple2($author$project$Expression$Sub, '-')
+			]),
+			_List_fromArray(
+			[
+				_Utils_Tuple2($author$project$Expression$Mul, '*'),
+				_Utils_Tuple2($author$project$Expression$Div, '/'),
+				_Utils_Tuple2($author$project$Expression$Mod, '%')
+			]),
+			_List_fromArray(
+			[
+				_Utils_Tuple2($author$project$Expression$Pow, '^')
+			])
+		]));
 var $elm$parser$Parser$Advanced$map2 = F3(
 	function (func, _v0, _v1) {
 		var parseA = _v0;
@@ -5630,48 +5763,6 @@ var $elm$parser$Parser$Advanced$lazy = function (thunk) {
 	};
 };
 var $elm$parser$Parser$lazy = $elm$parser$Parser$Advanced$lazy;
-var $elm$parser$Parser$Advanced$Append = F2(
-	function (a, b) {
-		return {$: 2, a: a, b: b};
-	});
-var $elm$parser$Parser$Advanced$oneOfHelp = F3(
-	function (s0, bag, parsers) {
-		oneOfHelp:
-		while (true) {
-			if (!parsers.b) {
-				return A2($elm$parser$Parser$Advanced$Bad, false, bag);
-			} else {
-				var parse = parsers.a;
-				var remainingParsers = parsers.b;
-				var _v1 = parse(s0);
-				if (!_v1.$) {
-					var step = _v1;
-					return step;
-				} else {
-					var step = _v1;
-					var p = step.a;
-					var x = step.b;
-					if (p) {
-						return step;
-					} else {
-						var $temp$s0 = s0,
-							$temp$bag = A2($elm$parser$Parser$Advanced$Append, bag, x),
-							$temp$parsers = remainingParsers;
-						s0 = $temp$s0;
-						bag = $temp$bag;
-						parsers = $temp$parsers;
-						continue oneOfHelp;
-					}
-				}
-			}
-		}
-	});
-var $elm$parser$Parser$Advanced$oneOf = function (parsers) {
-	return function (s) {
-		return A3($elm$parser$Parser$Advanced$oneOfHelp, s, $elm$parser$Parser$Advanced$Empty, parsers);
-	};
-};
-var $elm$parser$Parser$oneOf = $elm$parser$Parser$Advanced$oneOf;
 var $elm$parser$Parser$Advanced$succeed = function (a) {
 	return function (s) {
 		return A3($elm$parser$Parser$Advanced$Good, false, a, s);
@@ -5702,11 +5793,7 @@ var $author$project$ExpressionParser$chainl1 = F2(
 			A2(
 				$elm$parser$Parser$keeper,
 				$elm$parser$Parser$succeed(
-					$elm$core$List$foldl(
-						F2(
-							function (f, e) {
-								return f(e);
-							}))),
+					$elm$core$List$foldl($elm$core$Basics$apL)),
 				p),
 			$author$project$ExpressionParser$many(
 				A2(
@@ -5719,39 +5806,8 @@ var $author$project$ExpressionParser$chainl1 = F2(
 									return A2(op, e, t);
 								})),
 						sep),
-					$elm$parser$Parser$lazy(
-						function (_v0) {
-							return p;
-						}))));
+					p)));
 	});
-var $elm$parser$Parser$Advanced$map = F2(
-	function (func, _v0) {
-		var parse = _v0;
-		return function (s0) {
-			var _v1 = parse(s0);
-			if (!_v1.$) {
-				var p = _v1.a;
-				var a = _v1.b;
-				var s1 = _v1.c;
-				return A3(
-					$elm$parser$Parser$Advanced$Good,
-					p,
-					func(a),
-					s1);
-			} else {
-				var p = _v1.a;
-				var x = _v1.b;
-				return A2($elm$parser$Parser$Advanced$Bad, p, x);
-			}
-		};
-	});
-var $elm$parser$Parser$map = $elm$parser$Parser$Advanced$map;
-var $author$project$ExpressionParser$constMap = function (a) {
-	return $elm$parser$Parser$map(
-		function (_v0) {
-			return a;
-		});
-};
 var $author$project$Expression$Cos = 4;
 var $author$project$Expression$Exp = 1;
 var $author$project$Expression$Log = 2;
@@ -5761,16 +5817,7 @@ var $author$project$Expression$Tan = 5;
 var $elm$parser$Parser$ExpectingKeyword = function (a) {
 	return {$: 9, a: a};
 };
-var $elm$parser$Parser$Advanced$Token = F2(
-	function (a, b) {
-		return {$: 0, a: a, b: b};
-	});
 var $elm$parser$Parser$Advanced$isSubChar = _Parser_isSubChar;
-var $elm$parser$Parser$Advanced$isSubString = _Parser_isSubString;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Basics$not = _Basics_not;
 var $elm$parser$Parser$Advanced$keyword = function (_v0) {
 	var kwd = _v0.a;
 	var expecting = _v0.b;
@@ -5803,7 +5850,7 @@ var $elm$parser$Parser$keyword = function (kwd) {
 			kwd,
 			$elm$parser$Parser$ExpectingKeyword(kwd)));
 };
-var $author$project$ExpressionParser$function1Name = $elm$parser$Parser$oneOf(
+var $author$project$ExpressionParser$function1 = $elm$parser$Parser$oneOf(
 	A2(
 		$elm$core$List$map,
 		function (_v0) {
@@ -5824,7 +5871,7 @@ var $author$project$ExpressionParser$function1Name = $elm$parser$Parser$oneOf(
 				_Utils_Tuple2(5, 'tan')
 			])));
 var $author$project$Expression$PowFunc = 0;
-var $author$project$ExpressionParser$function2Name = $elm$parser$Parser$oneOf(
+var $author$project$ExpressionParser$function2 = $elm$parser$Parser$oneOf(
 	A2(
 		$elm$core$List$map,
 		function (_v0) {
@@ -5839,10 +5886,6 @@ var $author$project$ExpressionParser$function2Name = $elm$parser$Parser$oneOf(
 			[
 				_Utils_Tuple2(0, 'pow')
 			])));
-var $elm$core$Basics$always = F2(
-	function (a, _v0) {
-		return a;
-	});
 var $elm$parser$Parser$Advanced$mapChompedString = F2(
 	function (func, _v0) {
 		var parse = _v0;
@@ -6055,8 +6098,10 @@ var $elm$parser$Parser$Advanced$float = F2(
 			});
 	});
 var $elm$parser$Parser$float = A2($elm$parser$Parser$Advanced$float, $elm$parser$Parser$ExpectingFloat, $elm$parser$Parser$ExpectingFloat);
-var $author$project$ExpressionParser$number = $elm$parser$Parser$backtrackable(
-	A2($elm$parser$Parser$map, $author$project$Expression$Number, $elm$parser$Parser$float));
+var $author$project$ExpressionParser$number = A2(
+	$elm$parser$Parser$map,
+	$author$project$Expression$Number,
+	$elm$parser$Parser$backtrackable($elm$parser$Parser$float));
 var $elm$parser$Parser$Advanced$chompWhileHelp = F5(
 	function (isGood, offset, row, col, s0) {
 		chompWhileHelp:
@@ -6107,41 +6152,43 @@ var $elm$parser$Parser$Advanced$spaces = $elm$parser$Parser$Advanced$chompWhile(
 		return (c === ' ') || ((c === '\n') || (c === '\r'));
 	});
 var $elm$parser$Parser$spaces = $elm$parser$Parser$Advanced$spaces;
-var $elm$parser$Parser$ExpectingSymbol = function (a) {
-	return {$: 8, a: a};
-};
-var $elm$parser$Parser$Advanced$token = function (_v0) {
-	var str = _v0.a;
-	var expecting = _v0.b;
-	var progress = !$elm$core$String$isEmpty(str);
-	return function (s) {
-		var _v1 = A5($elm$parser$Parser$Advanced$isSubString, str, s.b, s.ch, s.bE, s.a);
-		var newOffset = _v1.a;
-		var newRow = _v1.b;
-		var newCol = _v1.c;
-		return _Utils_eq(newOffset, -1) ? A2(
-			$elm$parser$Parser$Advanced$Bad,
-			false,
-			A2($elm$parser$Parser$Advanced$fromState, s, expecting)) : A3(
-			$elm$parser$Parser$Advanced$Good,
-			progress,
-			0,
-			{bE: newCol, f: s.f, g: s.g, b: newOffset, ch: newRow, a: s.a});
-	};
-};
-var $elm$parser$Parser$Advanced$symbol = $elm$parser$Parser$Advanced$token;
-var $elm$parser$Parser$symbol = function (str) {
-	return $elm$parser$Parser$Advanced$symbol(
-		A2(
-			$elm$parser$Parser$Advanced$Token,
-			str,
-			$elm$parser$Parser$ExpectingSymbol(str)));
-};
 var $author$project$ExpressionParser$factor = function (variables) {
 	return $elm$parser$Parser$oneOf(
 		_List_fromArray(
 			[
 				A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$number, $elm$parser$Parser$spaces),
+				A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed($elm$core$Basics$identity),
+						$elm$parser$Parser$symbol('(')),
+					$elm$parser$Parser$spaces),
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$lazy(
+							function (_v3) {
+								return $author$project$ExpressionParser$cyclic$expression()(variables);
+							}),
+						$elm$parser$Parser$symbol(')')),
+					$elm$parser$Parser$spaces)),
+				A2(
+				$elm$parser$Parser$keeper,
+				A2(
+					$elm$parser$Parser$ignorer,
+					A2(
+						$elm$parser$Parser$ignorer,
+						$elm$parser$Parser$succeed($author$project$Expression$Negate),
+						$elm$parser$Parser$symbol('-')),
+					$elm$parser$Parser$spaces),
+				$elm$parser$Parser$lazy(
+					function (_v4) {
+						return $author$project$ExpressionParser$cyclic$expression()(variables);
+					})),
 				A2(
 				$elm$parser$Parser$keeper,
 				A2(
@@ -6151,7 +6198,7 @@ var $author$project$ExpressionParser$factor = function (variables) {
 						$elm$parser$Parser$ignorer,
 						A2(
 							$elm$parser$Parser$ignorer,
-							A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$function1Name, $elm$parser$Parser$spaces),
+							A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$function1, $elm$parser$Parser$spaces),
 							$elm$parser$Parser$symbol('(')),
 						$elm$parser$Parser$spaces)),
 				A2(
@@ -6159,7 +6206,7 @@ var $author$project$ExpressionParser$factor = function (variables) {
 					A2(
 						$elm$parser$Parser$ignorer,
 						$elm$parser$Parser$lazy(
-							function (_v2) {
+							function (_v5) {
 								return $author$project$ExpressionParser$cyclic$expression()(variables);
 							}),
 						$elm$parser$Parser$symbol(')')),
@@ -6175,7 +6222,7 @@ var $author$project$ExpressionParser$factor = function (variables) {
 							$elm$parser$Parser$ignorer,
 							A2(
 								$elm$parser$Parser$ignorer,
-								A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$function2Name, $elm$parser$Parser$spaces),
+								A2($elm$parser$Parser$ignorer, $author$project$ExpressionParser$function2, $elm$parser$Parser$spaces),
 								$elm$parser$Parser$symbol('(')),
 							$elm$parser$Parser$spaces)),
 					A2(
@@ -6183,7 +6230,7 @@ var $author$project$ExpressionParser$factor = function (variables) {
 						A2(
 							$elm$parser$Parser$ignorer,
 							$elm$parser$Parser$lazy(
-								function (_v3) {
+								function (_v6) {
 									return $author$project$ExpressionParser$cyclic$expression()(variables);
 								}),
 							$elm$parser$Parser$symbol(',')),
@@ -6193,7 +6240,7 @@ var $author$project$ExpressionParser$factor = function (variables) {
 					A2(
 						$elm$parser$Parser$ignorer,
 						$elm$parser$Parser$lazy(
-							function (_v4) {
+							function (_v7) {
 								return $author$project$ExpressionParser$cyclic$expression()(variables);
 							}),
 						$elm$parser$Parser$symbol(')')),
@@ -6206,66 +6253,40 @@ var $author$project$ExpressionParser$factor = function (variables) {
 					$elm$parser$Parser$getChompedString(
 						$elm$parser$Parser$oneOf(
 							A2($elm$core$List$map, $elm$parser$Parser$keyword, variables))),
-					$elm$parser$Parser$spaces)),
-				A2(
-				$elm$parser$Parser$keeper,
-				A2(
-					$elm$parser$Parser$ignorer,
-					A2(
-						$elm$parser$Parser$ignorer,
-						$elm$parser$Parser$succeed($author$project$Expression$Negate),
-						$elm$parser$Parser$symbol('-')),
-					$elm$parser$Parser$spaces),
-				$elm$parser$Parser$lazy(
-					function (_v5) {
-						return $author$project$ExpressionParser$cyclic$expression()(variables);
-					})),
-				A2(
-				$elm$parser$Parser$keeper,
-				A2(
-					$elm$parser$Parser$ignorer,
-					A2(
-						$elm$parser$Parser$ignorer,
-						$elm$parser$Parser$succeed($elm$core$Basics$identity),
-						$elm$parser$Parser$symbol('(')),
-					$elm$parser$Parser$spaces),
-				A2(
-					$elm$parser$Parser$ignorer,
-					A2(
-						$elm$parser$Parser$ignorer,
-						$elm$parser$Parser$lazy(
-							function (_v6) {
-								return $author$project$ExpressionParser$cyclic$expression()(variables);
-							}),
-						$elm$parser$Parser$symbol(')')),
 					$elm$parser$Parser$spaces))
 			]));
+};
+var $author$project$ExpressionParser$factorial = function (variables) {
+	return A2(
+		$elm$parser$Parser$keeper,
+		A2(
+			$elm$parser$Parser$keeper,
+			$elm$parser$Parser$succeed(
+				$elm$core$List$foldl(
+					function (_v1) {
+						return $author$project$Expression$Factorial;
+					})),
+			$elm$parser$Parser$lazy(
+				function (_v2) {
+					return $author$project$ExpressionParser$factor(variables);
+				})),
+		$author$project$ExpressionParser$many(
+			A2(
+				$elm$parser$Parser$ignorer,
+				$elm$parser$Parser$symbol('!'),
+				$elm$parser$Parser$spaces)));
 };
 var $author$project$ExpressionParser$term = F2(
 	function (operators, variables) {
 		if (!operators.b) {
-			return $author$project$ExpressionParser$factor(variables);
+			return $author$project$ExpressionParser$factorial(variables);
 		} else {
-			var ops = operators.a;
+			var op = operators.a;
 			var nextLevelOps = operators.b;
 			return A2(
 				$author$project$ExpressionParser$chainl1,
 				A2($author$project$ExpressionParser$term, nextLevelOps, variables),
-				$elm$parser$Parser$oneOf(
-					A2(
-						$elm$core$List$map,
-						function (_v1) {
-							var op = _v1.a;
-							var s = _v1.b;
-							return A2(
-								$elm$parser$Parser$ignorer,
-								A2(
-									$author$project$ExpressionParser$constMap,
-									op,
-									$elm$parser$Parser$symbol(s)),
-								$elm$parser$Parser$spaces);
-						},
-						ops)));
+				A2($elm$parser$Parser$ignorer, op, $elm$parser$Parser$spaces));
 		}
 	});
 function $author$project$ExpressionParser$cyclic$expression() {
@@ -6347,6 +6368,15 @@ var $author$project$ExpressionParser$parseExpression = function (variables) {
 			$elm$parser$Parser$spaces));
 };
 var $elm$core$Basics$cos = _Basics_cos;
+var $author$project$Expression$isInt = function (x) {
+	return _Utils_eq(
+		$elm$core$Basics$floor(x),
+		x);
+};
+var $author$project$Expression$nan = 0.0 / 0.0;
+var $author$project$Expression$factorial = function (n) {
+	return ((n < 0.0) || (!$author$project$Expression$isInt(n))) ? $author$project$Expression$nan : ((n === 0.0) ? 1.0 : (n * $author$project$Expression$factorial(n - 1.0)));
+};
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
@@ -6445,6 +6475,10 @@ var $author$project$Expression$runExpression = F2(
 					run(e1),
 					run(e2));
 			case 8:
+				var e = expression.a;
+				return $author$project$Expression$factorial(
+					run(e));
+			case 9:
 				switch (expression.a) {
 					case 0:
 						var _v1 = expression.a;
@@ -6481,7 +6515,7 @@ var $author$project$Expression$runExpression = F2(
 						return $elm$core$Basics$tan(
 							run(e));
 				}
-			case 9:
+			case 10:
 				var _v7 = expression.a;
 				var e1 = expression.b;
 				var e2 = expression.c;
@@ -6491,10 +6525,9 @@ var $author$project$Expression$runExpression = F2(
 					run(e2));
 			default:
 				var s = expression.a;
-				var nan = 0.0 / 0.0;
 				return A2(
 					$elm$core$Maybe$withDefault,
-					nan,
+					$author$project$Expression$nan,
 					A2($elm$core$Dict$get, s, variables));
 		}
 	});
@@ -6819,11 +6852,6 @@ var $elm$core$List$any = F2(
 				}
 			}
 		}
-	});
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
 	});
 var $elm$core$List$all = F2(
 	function (isOkay, list) {
@@ -9544,7 +9572,8 @@ var $author$project$View$bodyContent = function (model) {
 														A2(item, 'sin(x)', 'sine function'),
 														A2(item, 'cos(x)', 'cosine function'),
 														A2(item, 'tan(x)', 'tangent function'),
-														A2(item, 'pow(x, y)', 'power function, the same as x ^ y')
+														A2(item, 'pow(x, y)', 'power function, the same as x ^ y'),
+														A2(item, 'x!', 'factorial for positive integers')
 													]))
 											])),
 										A2(
