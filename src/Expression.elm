@@ -6,7 +6,6 @@ module Expression exposing
   )
 
 import Dict exposing (Dict)
-import Svg.Styled.Attributes exposing (x)
 
 type Expression
   = Number Float
