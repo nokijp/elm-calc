@@ -12,8 +12,14 @@ expression = term binaryOperators
 term : List (Parser (Expression -> Expression -> Expression)) -> List String -> Parser Expression
 term operators variables =
   case operators of
-    [] -> factor variables
+    [] -> factorial variables
     op :: nextLevelOps -> chainl1 (term nextLevelOps variables) (op |. spaces)
+
+factorial : List String -> Parser Expression
+factorial variables =
+  succeed (List.foldl (\_ -> Factorial))
+    |= lazy (\_ -> factor variables)
+    |= many (symbol "!" |. spaces)
 
 factor : List String -> Parser Expression
 factor variables =

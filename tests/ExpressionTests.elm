@@ -9,11 +9,14 @@ import Expression exposing (..)
 tests : Test
 tests =
   describe "Expression"
-    [ describe "runExpression"
-        (expressions |> List.map (\(e, r) ->
-          test ("it can evaluate " ++ Debug.toString e) <|
-            \_ -> runExpression variables e |> Expect.within (Expect.Absolute 1e-10) r)
-        )
+    [ describe "runExpression" <| List.concat
+        [ expressions |> List.map (\(e, r) ->
+            test ("it can evaluate " ++ Debug.toString e) <|
+              \_ -> runExpression variables e |> Expect.within (Expect.Absolute 1e-10) r)
+        , nanExpressions |> List.map (\e ->
+            test ("it should returns NaN when given" ++ Debug.toString e) <|
+              \_ -> runExpression variables e |> Expect.true "isNaN" << isNaN)
+        ]
     ]
 
 variables : Dict String Float
@@ -41,6 +44,9 @@ expressions =
   , (Mod (Number -7.5) (Number -5.2), -2.3)
   , (Mod (Number 7.5) (Number -5.2), 2.3)
   , (Pow (Number 2.0) (Number 3.0), 8.0)
+  , (Factorial (Number 0.0), 1.0)
+  , (Factorial (Number 1.0), 1.0)
+  , (Factorial (Number 10.0), 3628800.0)
   , (Apply1 Sqrt (Number 2.0), 1.4142135624)
   , (Apply1 Exp (Number 2.0), 7.3890560989)
   , (Apply1 Log (Number 10.0), 2.3025850930)
@@ -52,4 +58,14 @@ expressions =
   , (Variable "v2", 100.0)
   , (Add (Sub (Add (Number 1.0) (Number 2.0)) (Number 3.0)) (Number 4.0), 4.0)  -- 1 + 2 - 3 + 4
   , (Sub (Add (Number 1.0) (Number 2.0)) (Mul (Number 3.0) (Number 4.0)), -9.0)  -- 1 + 2 - 3 * 4
+  ]
+
+nanExpressions : List Expression
+nanExpressions =
+  [ Mod (Number 1.0) (Number 0.0)
+  , Factorial (Number -1.0)
+  , Factorial (Number 1.5)
+  , Apply1 Sqrt (Number -1.0)
+  , Apply1 Log (Number -1.0)
+  , Variable "xxx"
   ]

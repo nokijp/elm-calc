@@ -6,6 +6,7 @@ module Expression exposing
   )
 
 import Dict exposing (Dict)
+import Svg.Styled.Attributes exposing (x)
 
 type Expression
   = Number Float
@@ -16,6 +17,7 @@ type Expression
   | Div Expression Expression
   | Mod Expression Expression
   | Pow Expression Expression
+  | Factorial Expression
   | Apply1 Function1 Expression
   | Apply2 Function2 Expression Expression
   | Variable String
@@ -44,6 +46,7 @@ runExpression variables expression =
       Div e1 e2 -> run e1 / run e2
       Mod e1 e2 -> fmod (run e1) (run e2)
       Pow e1 e2 -> run e1 ^ run e2
+      Factorial e -> factorial <| run e
       Apply1 Sqrt e -> sqrt <| run e
       Apply1 Exp e -> Basics.e ^ run e
       Apply1 Log e -> logBase Basics.e <| run e
@@ -59,6 +62,18 @@ fmod p q =
     r = frac (abs (p / q)) * abs q
     frac x = x - toFloat (floor x)
   in if p >= 0.0 then r else -r
+
+factorial : Float -> Float
+factorial n =
+  if n < 0.0 || not (isInt n)
+  then nan
+  else
+    if n == 0.0
+    then 1.0
+    else n * factorial (n - 1.0)
+
+isInt : Float -> Bool
+isInt x = toFloat (floor x) == x
 
 nan : Float
 nan = 0.0 / 0.0
