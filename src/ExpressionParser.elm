@@ -9,24 +9,30 @@ parseExpression variables = run (spaces |> andThen (\_ -> expression variables |
 expression : List String -> Parser Expression
 expression = term binaryOperators
 
-term : List (List (Expression -> Expression -> Expression, String)) -> List String -> Parser Expression
+term : List (Parser (Expression -> Expression -> Expression)) -> List String -> Parser Expression
 term operators variables =
   case operators of
     [] -> factor variables
-    (ops :: nextLevelOps) ->
-      chainl1 (term nextLevelOps variables) <| oneOf <| List.map (\(op, s) -> constMap op (symbol s) |. spaces) ops
+    op :: nextLevelOps -> chainl1 (term nextLevelOps variables) (op |. spaces)
 
 factor : List String -> Parser Expression
 factor variables =
   oneOf
     [ number |. spaces
+    , succeed identity
+        |. symbol "(" |. spaces
+        |= lazy (\_ -> expression variables)
+        |. symbol ")" |. spaces
+    , succeed Negate
+        |. symbol  "-" |. spaces
+        |= lazy (\_ -> expression variables)
     , succeed Apply1
-        |= function1Name |. spaces
+        |= function1 |. spaces
         |. symbol "(" |. spaces
         |= lazy (\_ -> expression variables)
         |. symbol ")" |. spaces
     , succeed Apply2
-        |= function2Name |. spaces
+        |= function2 |. spaces
         |. symbol "(" |. spaces
         |= lazy (\_ -> expression variables)
         |. symbol "," |. spaces
@@ -34,52 +40,44 @@ factor variables =
         |. symbol ")" |. spaces
     , succeed Variable
         |= getChompedString (oneOf <| List.map keyword variables) |. spaces
-    , succeed Negate
-        |. symbol  "-" |. spaces
-        |= lazy (\_ -> expression variables)
-    , succeed identity
-        |. symbol "(" |. spaces
-        |= lazy (\_ -> expression variables)
-        |. symbol ")" |. spaces
     ]
 
-binaryOperators : List (List (Expression -> Expression -> Expression, String))
+binaryOperators : List (Parser (Expression -> Expression -> Expression))
 binaryOperators =
-  [ [(Add, "+"), (Sub, "-")]
-  , [(Mul, "*"), (Div, "/"), (Mod, "%")]
-  , [(Pow, "^")]
-  ]
+  List.map (oneOf << List.map (\(op, s) -> constMap op (symbol s)))
+    [ [(Add, "+"), (Sub, "-")]
+    , [(Mul, "*"), (Div, "/"), (Mod, "%")]
+    , [(Pow, "^")]
+    ]
 
-function1Name : Parser Function1
-function1Name =
-  oneOf <|
-    List.map (\(f, s) -> constMap f (keyword s))
-      [ (Sqrt, "sqrt")
-      , (Exp, "exp")
-      , (Log, "log")
-      , (Sin, "sin")
-      , (Cos, "cos")
-      , (Tan, "tan")
-      ]
+function1 : Parser Function1
+function1 =
+  oneOf <| List.map (\(f, s) -> constMap f (keyword s))
+    [ (Sqrt, "sqrt")
+    , (Exp, "exp")
+    , (Log, "log")
+    , (Sin, "sin")
+    , (Cos, "cos")
+    , (Tan, "tan")
+    ]
 
-function2Name : Parser Function2
-function2Name =
-  oneOf <|
-    List.map (\(f, s) -> constMap f (keyword s))
-      [ (PowFunc, "pow")
-      ]
+function2 : Parser Function2
+function2 =
+  oneOf <| List.map (\(f, s) -> constMap f (keyword s))
+    [ (PowFunc, "pow")
+    ]
 
 number : Parser Expression
-number = backtrackable <| Parser.map Number float
+number = Parser.map Number (backtrackable float)
 
 constMap : a -> Parser b -> Parser a
-constMap a = Parser.map (\_ -> a)
+constMap a = Parser.map (always a)
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p sep =
-  succeed (List.foldl (\f e -> f e))
+  succeed (List.foldl (<|))
     |= p
-    |= many (succeed (\op t e -> op e t) |= sep |= lazy (\_ -> p))
+    |= many (succeed (\op t e -> op e t) |= sep |= p)
 
 many : Parser a -> Parser (List a)
 many p =

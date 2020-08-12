@@ -51,7 +51,7 @@ runExpression variables expression =
       Apply1 Cos e -> cos <| run e
       Apply1 Tan e -> tan <| run e
       Apply2 PowFunc e1 e2 -> run e1 ^ run e2
-      Variable s -> let nan = 0.0 / 0.0 in Maybe.withDefault nan <| Dict.get s variables
+      Variable s -> Maybe.withDefault nan <| Dict.get s variables
 
 fmod : Float -> Float -> Float
 fmod p q =
@@ -59,3 +59,6 @@ fmod p q =
     r = frac (abs (p / q)) * abs q
     frac x = x - toFloat (floor x)
   in if p >= 0.0 then r else -r
+
+nan : Float
+nan = 0.0 / 0.0
