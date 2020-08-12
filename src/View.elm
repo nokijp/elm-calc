@@ -224,6 +224,7 @@ bodyContent model =
                           , item "cos(x)" "cosine function"
                           , item "tan(x)" "tangent function"
                           , item "pow(x, y)" "power function, the same as x ^ y"
+                          , item "x!" "factorial for positive integers"
                           ]
                       ]
                   , section []
