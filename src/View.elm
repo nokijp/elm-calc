@@ -6,6 +6,7 @@ import Css.Reset as Reset
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, class, placeholder, value)
 import Html.Styled.Events exposing (..)
+import KeyEvents exposing (..)
 import Model exposing (..)
 
 bodyContent : Model -> List (Html Msg)
@@ -243,6 +244,7 @@ bodyContent model =
           [ input
               [ mainTextInputStyle
               , onInput UpdateInput
+              , onUpDownKeyDown BackHistory ForwardHistory
               , value model.input
               , placeholder "enter an expression, e.g. (1 + 2 * sin(5 * pi)) / 2"
               ]

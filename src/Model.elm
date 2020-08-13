@@ -4,6 +4,7 @@ module Model exposing
   , Model
   )
 
+import Cursor exposing (..)
 import Dict exposing (Dict)
 import Expression exposing (..)
 
@@ -11,6 +12,8 @@ type Msg
   = TryToPush
   | UpdateInput String
   | ClearHistory
+  | ForwardHistory
+  | BackHistory
 
 type CalcResult
   = CalcResultEmpty
@@ -22,4 +25,5 @@ type alias Model =
   , input : String
   , result : CalcResult
   , variables : Dict String Float
+  , historyCursor : Cursor String
   }

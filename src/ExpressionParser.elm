@@ -77,7 +77,7 @@ number : Parser Expression
 number = Parser.map Number (backtrackable float)
 
 constMap : a -> Parser b -> Parser a
-constMap a = Parser.map (always a)
+constMap = Parser.map << always
 
 chainl1 : Parser a -> Parser (a -> a -> a) -> Parser a
 chainl1 p sep =

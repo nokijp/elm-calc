@@ -10,12 +10,16 @@ tests : Test
 tests =
   describe "Expression"
     [ describe "runExpression" <| List.concat
-        [ expressions |> List.map (\(e, r) ->
-            test ("it can evaluate " ++ Debug.toString e) <|
-              \_ -> runExpression variables e |> Expect.within (Expect.Absolute 1e-10) r)
-        , nanExpressions |> List.map (\e ->
-            test ("it should returns NaN when given" ++ Debug.toString e) <|
-              \_ -> runExpression variables e |> Expect.true "isNaN" << isNaN)
+        [ expressions |> List.map
+            (\(e, r) ->
+              test ("it can evaluate " ++ Debug.toString e) <|
+                \_ -> runExpression variables e |> Expect.within (Expect.Absolute 1e-10) r
+            )
+        , nanExpressions |> List.map
+            (\e ->
+              test ("it should returns NaN when given" ++ Debug.toString e) <|
+                \_ -> runExpression variables e |> Expect.true "isNaN" << isNaN
+            )
         ]
     ]
 

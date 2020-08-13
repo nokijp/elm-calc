@@ -10,9 +10,11 @@ tests : Test
 tests =
   describe "ExpressionParser"
     [ describe "parseExpression"
-        (validExpressions |> List.map (\(s, e) ->
-          test ("it can parse " ++ s) <|
-            \_ -> parseExpression variables s |> Expect.equal (Ok e))
+        (validExpressions |> List.map
+          (\(s, e) ->
+            test ("it can parse " ++ s) <|
+              \_ -> parseExpression variables s |> Expect.equal (Ok e)
+          )
         )
     ]
 
